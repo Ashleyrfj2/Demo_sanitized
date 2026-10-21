@@ -1,0 +1,15 @@
+.git
+.env
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+
+**/.env
+**/.env.*
+**/secrets.local.*
+**/credentials.local.*
+**/.generated
+*.pem
+*.p12
+*.pfx
+*.key
