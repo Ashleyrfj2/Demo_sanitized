@@ -1,0 +1,26 @@
+{
+  "version": "information-value-v0.1",
+  "novelty_floor": 0.25,
+  "prior_base_rate": 0.20,
+  "prior_strength": 2.0,
+  "default_claim": {
+    "area": "",
+    "business_risk": 0.50,
+    "diff_impact": 0.50,
+    "expected_cost": 1.00,
+    "allowed_roles": [],
+    "required_depth": 3,
+    "target_independent_sources": 2,
+    "blocked_feasible": false
+  },
+  "claim_overrides": {
+    "FEST-CLAIM-01": {"area":"Supply List creation","business_risk":0.55,"diff_impact":0.55,"expected_cost":0.80,"allowed_roles":["leader","editor"],"required_depth":3,"target_independent_sources":2,"blocked_feasible":false},
+    "FEST-CLAIM-02": {"area":"Supply List shared assignment","business_risk":0.55,"diff_impact":0.70,"expected_cost":1.00,"allowed_roles":["leader","editor","viewer"],"required_depth":3,"target_independent_sources":2,"blocked_feasible":false},
+    "FEST-CLAIM-03": {"area":"Supply List packing","business_risk":0.55,"diff_impact":0.55,"expected_cost":0.70,"allowed_roles":["leader","editor"],"required_depth":2,"target_independent_sources":2,"blocked_feasible":false},
+    "FEST-CLAIM-04": {"area":"Supply List packed-state persistence","business_risk":1.00,"diff_impact":1.00,"expected_cost":1.00,"allowed_roles":["leader","editor","viewer"],"required_depth":3,"target_independent_sources":2,"blocked_feasible":false},
+    "FEST-CLAIM-05": {"area":"Supply List delete authorization","business_risk":1.00,"diff_impact":1.00,"expected_cost":1.10,"allowed_roles":["viewer"],"required_depth":3,"target_independent_sources":2,"blocked_feasible":false},
+    "FEST-CLAIM-06": {"area":"Private authorization audit evidence","business_risk":1.00,"diff_impact":1.00,"expected_cost":1.50,"allowed_roles":["viewer"],"required_depth":4,"target_independent_sources":2,"blocked_feasible":false},
+    "FEST-CLAIM-07": {"area":"Supply List stale-state reconciliation","business_risk":1.00,"diff_impact":1.00,"expected_cost":1.20,"allowed_roles":["editor"],"required_depth":3,"target_independent_sources":2,"blocked_feasible":true},
+    "FEST-CLAIM-08": {"area":"Supply List ownership authorization","business_risk":1.00,"diff_impact":1.00,"expected_cost":1.10,"allowed_roles":["leader","editor"],"required_depth":3,"target_independent_sources":2,"blocked_feasible":false}
+  }
+}
