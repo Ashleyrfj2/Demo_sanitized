@@ -1,0 +1,19 @@
+{
+  "name": "qa-platform-extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.21.0 <23"
+  },
+  "packageManager": "npm@10.9.4",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test tests/*.test.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.0",
+    "@types/chrome": "0.2.7",
+    "typescript": "7.0.2"
+  }
+}

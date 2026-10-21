@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "QA Evidence Capture",
+  "version": "0.1.0",
+  "description": "Captures masked, unscripted browser validation activity for approved demo domains.",
+  "permissions": ["storage", "alarms"],
+  "host_permissions": ["http://127.0.0.1:8080/*", "http://localhost:8080/*"],
+  "action": { "default_title": "QA evidence capture", "default_popup": "popup.html" },
+  "background": { "service_worker": "dist/background.js", "type": "module" },
+  "content_scripts": [
+    {
+      "matches": ["http://127.0.0.1:4173/*", "http://localhost:4173/*"],
+      "js": ["dist/content.js"]
+    }
+  ]
+}

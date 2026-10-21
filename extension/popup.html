@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QA evidence capture</title><style>
+body{font:13px system-ui;width:330px;margin:0;padding:14px;color:#182230}label{display:block;margin:8px 0 2px}input,select,button{box-sizing:border-box;width:100%;padding:7px}button{margin-top:10px}.row{display:flex;gap:8px;align-items:center}.row input{width:auto}#status,#errors{margin-top:10px;font-size:12px}#errors{color:#b42318}
+</style></head><body><strong>QA evidence capture</strong><form>
+<label>Tenant</label><input name="tenantId"><label>Build</label><input name="buildId">
+<label>Environment</label><input name="environmentId"><label>Scenario</label><input name="scenarioId">
+<label>Actor</label><input name="actorId"><label>Role</label><select name="role"><option value=""></option><option>leader</option><option>editor</option><option>viewer</option></select>
+<label>Session</label><input name="sessionId"><label>Run</label><input name="runId">
+<label>Local API</label><input name="apiBaseUrl"><label>Bearer token</label><input name="apiToken" type="password" autocomplete="off" placeholder="unchanged when blank">
+<label class="row"><input name="captureEnabled" type="checkbox"> Enable capture</label><button type="submit">Save</button>
+</form><button id="retry" type="button">Retry failed events</button><div id="status"></div><div id="errors"></div><script type="module" src="dist/popup.js"></script></body></html>
