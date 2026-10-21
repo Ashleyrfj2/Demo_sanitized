@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://qa-platform.local/contracts/validation-event.schema.json",
+  "title": "ValidationEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id", "tenant_id", "run_id", "actor_id", "source_type", "source_adapter", "context",
+    "build_id", "environment_id", "route", "state_fingerprint",
+    "action_type", "outcome", "occurred_at", "step_index", "privacy"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "tenant_id": { "type": "string", "minLength": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "run_id": { "type": "string", "minLength": 1 },
+    "actor_id": { "type": "string", "minLength": 1 },
+    "source_type": { "enum": ["human", "agent", "automation"] },
+    "source_adapter": { "type": "string", "minLength": 1 },
+    "build_id": { "type": "string", "minLength": 1 },
+    "environment_id": { "type": "string", "minLength": 1 },
+    "context": {
+      "type": "object",
+      "required": ["role"],
+      "properties": { "role": { "type": "string", "minLength": 1 } },
+      "additionalProperties": { "type": "string" }
+    },
+    "route": { "type": "string", "minLength": 1 },
+    "state_fingerprint": { "type": "string", "minLength": 1 },
+    "action_type": { "type": "string", "minLength": 1 },
+    "outcome": { "enum": ["pass", "fail", "blocked", "ambiguous", "abandoned"] },
+    "verifier_result": { "type": "string" },
+    "finding_id": { "type": "string" },
+    "verification_status": { "type": "string" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "step_index": { "type": "integer", "minimum": 0 },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["masked"],
+      "properties": {
+        "masked": { "type": "boolean" },
+        "redacted_fields": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

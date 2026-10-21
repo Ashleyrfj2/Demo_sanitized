@@ -1,0 +1,557 @@
+openapi: 3.1.0
+info:
+  title: QA Evidence API
+  version: 0.2.0
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    APIError:
+      type: object
+      additionalProperties: false
+      required: [code, error]
+      properties:
+        code: { type: string }
+        error: { type: string }
+    ExperimentRegistration:
+      type: object
+      additionalProperties: false
+      required: [id, tenant_id, build_id, environment_id, scenario_id, mode]
+      properties:
+        id: { type: string, minLength: 1 }
+        tenant_id: { type: string, minLength: 1 }
+        build_id: { type: string, minLength: 1 }
+        environment_id: { type: string, minLength: 1 }
+        scenario_id: { type: string, minLength: 1 }
+        mode: { enum: [baseline, guided] }
+    MetricValue:
+      type: object
+      additionalProperties: false
+      required: [value, unit, numerator, denominator, undefined_reason]
+      properties:
+        value: { type: [number, "null"] }
+        unit: { enum: [ratio, count, seconds, per_tester_hour] }
+        numerator: { type: [number, "null"] }
+        denominator: { type: [number, "null"] }
+        undefined_reason: { type: [string, "null"] }
+    RowDigest:
+      type: object
+      additionalProperties: false
+      required: [id, sha256]
+      properties:
+        id: { type: string }
+        sha256: { type: string, pattern: "^[a-f0-9]{64}$" }
+    MetricInputReceipt:
+      type: object
+      additionalProperties: false
+      required: [schema_version, algorithm, sha256, immutable, counts, row_digests]
+      properties:
+        schema_version: { const: festival-metric-input-v1 }
+        algorithm: { const: sha256 }
+        sha256: { type: string, pattern: "^[a-f0-9]{64}$" }
+        immutable: { type: boolean }
+        counts:
+          type: object
+          additionalProperties: false
+          required: [events, states, verification_requests, recommendations, responses, corrections]
+          properties:
+            events: { type: integer, minimum: 0 }
+            states: { type: integer, minimum: 0 }
+            verification_requests: { type: integer, minimum: 0 }
+            recommendations: { type: integer, minimum: 0 }
+            responses: { type: integer, minimum: 0 }
+            corrections: { type: integer, minimum: 0 }
+        row_digests:
+          type: object
+          additionalProperties: false
+          required: [events, states, verification_requests, recommendations, responses, corrections]
+          properties:
+            events: { type: array, items: { $ref: "#/components/schemas/RowDigest" } }
+            states: { type: array, items: { $ref: "#/components/schemas/RowDigest" } }
+            verification_requests: { type: array, items: { $ref: "#/components/schemas/RowDigest" } }
+            recommendations: { type: array, items: { $ref: "#/components/schemas/RowDigest" } }
+            responses: { type: array, items: { $ref: "#/components/schemas/RowDigest" } }
+            corrections: { type: array, items: { $ref: "#/components/schemas/RowDigest" } }
+    ExperimentMetrics:
+      type: object
+      required: [run_id, status, definition_version, as_of, frozen_at, metrics, breakdowns, input_receipt]
+      properties:
+        run_id: { type: string }
+        status: { enum: [preview, frozen] }
+        definition_version: { const: festival-v1.1 }
+        as_of: { type: string, format: date-time }
+        frozen_at: { type: [string, "null"], format: date-time }
+        metrics:
+          type: object
+          minProperties: 16
+          maxProperties: 16
+          additionalProperties: false
+          required:
+            - low_information_overlap_rate
+            - useful_independent_verification_preserved
+            - novel_or_risk_relevant_evidence_per_tester_hour
+            - late_tester_time_to_next_useful_area_seconds
+            - high_risk_gap_closure_time_seconds
+            - accepted_defect_yield
+            - accepted_evidence_yield
+            - recommendation_acceptance_rate
+            - recommendation_dismissal_rate
+            - seeded_condition_discovery_rate
+            - evidence_completeness_rate
+            - state_correction_rate
+            - false_merge_split_rate
+            - capture_adapter_failure_rate
+            - capture_adapter_latency_p50_seconds
+            - capture_adapter_latency_p95_seconds
+          properties:
+            low_information_overlap_rate: { $ref: "#/components/schemas/MetricValue" }
+            useful_independent_verification_preserved: { $ref: "#/components/schemas/MetricValue" }
+            novel_or_risk_relevant_evidence_per_tester_hour: { $ref: "#/components/schemas/MetricValue" }
+            late_tester_time_to_next_useful_area_seconds: { $ref: "#/components/schemas/MetricValue" }
+            high_risk_gap_closure_time_seconds: { $ref: "#/components/schemas/MetricValue" }
+            accepted_defect_yield: { $ref: "#/components/schemas/MetricValue" }
+            accepted_evidence_yield: { $ref: "#/components/schemas/MetricValue" }
+            recommendation_acceptance_rate: { $ref: "#/components/schemas/MetricValue" }
+            recommendation_dismissal_rate: { $ref: "#/components/schemas/MetricValue" }
+            seeded_condition_discovery_rate: { $ref: "#/components/schemas/MetricValue" }
+            evidence_completeness_rate: { $ref: "#/components/schemas/MetricValue" }
+            state_correction_rate: { $ref: "#/components/schemas/MetricValue" }
+            false_merge_split_rate: { $ref: "#/components/schemas/MetricValue" }
+            capture_adapter_failure_rate: { $ref: "#/components/schemas/MetricValue" }
+            capture_adapter_latency_p50_seconds: { $ref: "#/components/schemas/MetricValue" }
+            capture_adapter_latency_p95_seconds: { $ref: "#/components/schemas/MetricValue" }
+        breakdowns: { type: object }
+        input_receipt: { $ref: "#/components/schemas/MetricInputReceipt" }
+    ClaimEvidenceSummary:
+      type: object
+      additionalProperties: false
+      required: [claim_id, tenant_id, target, state_signature, actor_context, validation_intent, classification, max_verification_depth, freshness, independent_source_count, compatible_observation_count, conflict_count, reasons]
+      properties:
+        claim_id: { type: string }
+        tenant_id: { type: string }
+        target: { type: string }
+        state_signature: { type: string }
+        actor_context: { type: string }
+        validation_intent: { type: string }
+        classification: { enum: [Solid, Weak, Stale, Conflicted, Untouched, Blocked] }
+        heuristic_score: { type: [number, "null"], description: "Non-probabilistic heuristic indicator score (omitted / null when claim is Conflicted)" }
+        max_verification_depth: { type: integer, minimum: 0, maximum: 4 }
+        freshness: { enum: [current, stale, untouched] }
+        independent_source_count: { type: integer, minimum: 0 }
+        compatible_observation_count: { type: integer, minimum: 0 }
+        conflict_count: { type: integer, minimum: 0 }
+        latest_observation_at: { type: string, format: date-time }
+        reasons:
+          type: array
+          items: { type: string }
+        evidence_contexts:
+          type: array
+          items: { $ref: "#/components/schemas/EvidenceContext" }
+    ClaimDefinition:
+      type: object
+      additionalProperties: false
+      required: [id, tenant_id, title, description, target, state_signature, actor_context, validation_intent]
+      properties:
+        id: { type: string }
+        tenant_id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        target: { type: string }
+        state_signature: { type: string }
+        actor_context: { type: string }
+        validation_intent: { type: string }
+        created_at: { type: string, format: date-time }
+    EvidenceContext:
+      type: object
+      additionalProperties: false
+      required: [id, tenant_id, run_id, build_id, environment_id]
+      properties:
+        id: { type: string }
+        tenant_id: { type: string }
+        run_id: { type: string }
+        build_id: { type: string }
+        environment_id: { type: string }
+        scenario_id: { type: string }
+        device: { type: string }
+        region: { type: string }
+        feature_flags: { type: object, additionalProperties: { type: string } }
+        created_at: { type: string, format: date-time }
+    Observation:
+      type: object
+      additionalProperties: false
+      required: [id, tenant_id, run_id, claim_id, evidence_context_id, assessment]
+      properties:
+        id: { type: string }
+        tenant_id: { type: string }
+        run_id: { type: string }
+        claim_id: { type: string }
+        evidence_context_id: { type: string }
+        event_id: { type: string }
+        source_type: { type: string }
+        source_adapter: { type: string }
+        actor_id: { type: string }
+        assessment: { enum: [supports, weakens, conflicts, invalidates, blocked] }
+        verifier_result: { type: string }
+        occurred_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+    ClaimEvidenceSummariesResponse:
+      type: object
+      additionalProperties: false
+      required: [run_id, tenant_id, build_id, environment_id, summaries]
+      properties:
+        run_id: { type: string }
+        tenant_id: { type: string }
+        build_id: { type: string }
+        environment_id: { type: string }
+        summaries:
+          type: array
+          items: { $ref: "#/components/schemas/ClaimEvidenceSummary" }
+    RecommendationFactors:
+      type: object
+      additionalProperties: false
+      required: [delta_uncertainty, business_risk, diff_impact, smoothed_failure_prior, expected_cost]
+      properties:
+        delta_uncertainty: { type: number, minimum: 0, maximum: 1, description: "Expected reduction in unresolved claim uncertainty on a 0..1 heuristic scale." }
+        business_risk: { type: number, exclusiveMinimum: 0, maximum: 1, description: "Manual consequence weight on a (0,1] scale." }
+        diff_impact: { type: number, exclusiveMinimum: 0, maximum: 1, description: "Manual V0 affected-area relevance on a (0,1] scale; not M9 build invalidation." }
+        smoothed_failure_prior: { type: number, exclusiveMinimum: 0, maximum: 1, description: "Transparent smoothed heuristic rate with a non-zero novelty floor; not a calibrated probability." }
+        expected_cost: { type: number, minimum: 0.1, maximum: 10, description: "Manual relative validation-effort estimate." }
+    Recommendation:
+      type: object
+      additionalProperties: false
+      required: [id, tenant_id, claim_id, run_id, actor_id, role, build_id, environment_id, area, classification, max_verification_depth, independent_source_count, conflict_count, rationale, score, factors, policy_version, evidence_snapshot, progression_snapshot, override_alternatives, created_at]
+      properties:
+        id: { type: string, minLength: 1 }
+        tenant_id: { type: string, minLength: 1 }
+        candidate_state_id: { type: string, minLength: 1, description: "Present only on legacy pre-M5A records." }
+        claim_id: { type: string, minLength: 1 }
+        run_id: { type: string, minLength: 1 }
+        actor_id: { type: string, minLength: 1 }
+        role: { type: string, minLength: 1 }
+        build_id: { type: string, minLength: 1 }
+        environment_id: { type: string, minLength: 1 }
+        scenario_id: { type: string, minLength: 1 }
+        device: { type: string, minLength: 1 }
+        region: { type: string, minLength: 1 }
+        area: { type: string, minLength: 1 }
+        classification: { enum: [Solid, Weak, Stale, Conflicted, Untouched, Blocked] }
+        max_verification_depth: { type: integer, minimum: 0, maximum: 4 }
+        independent_source_count: { type: integer, minimum: 0 }
+        conflict_count: { type: integer, minimum: 0 }
+        rationale: { type: string, minLength: 1, description: "Claim-level explanation; never a step-by-step test script." }
+        score: { type: number, minimum: 0, description: "Deterministic non-probabilistic priority score." }
+        factors: { $ref: "#/components/schemas/RecommendationFactors" }
+        policy_version: { type: string, minLength: 1 }
+        evidence_snapshot: { type: string, pattern: "^[a-f0-9]{64}$" }
+        progression_snapshot: { type: string, pattern: "^[a-f0-9]{64}$", description: "Deterministic digest of responded recommendation history for the exact actor/scope/policy and evidence snapshot. Distinct from evidence_snapshot." }
+        promoted_by_response_id: { type: string, minLength: 1, description: "Immutable response event that explicitly promoted this recommendation target." }
+        override_alternatives:
+          type: array
+          description: "Backend-approved alternative claims for this exact immutable recommendation step."
+          items:
+            type: object
+            additionalProperties: false
+            required: [claim_id, title, area, classification]
+            properties:
+              claim_id: { type: string, minLength: 1 }
+              title: { type: string, minLength: 1 }
+              area: { type: string, minLength: 1 }
+              classification: { enum: [Solid, Weak, Stale, Conflicted, Untouched, Blocked] }
+        feature_flags: { type: object, additionalProperties: { type: string } }
+        created_at: { type: string, format: date-time }
+    RecommendationResponse:
+      type: object
+      additionalProperties: false
+      required: [response, reason, actor_id]
+      description: "Human feedback on one immutable recommendation. override_claim_id is required exactly when response=override and must identify a different feasible claim in the same recommendation scope."
+      properties:
+        response: { enum: [accepted, dismissed, override] }
+        reason: { type: string, minLength: 1 }
+        actor_id: { type: string, minLength: 1 }
+        override_claim_id: { type: string, minLength: 1 }
+security:
+  - bearerAuth: []
+paths:
+  /healthz:
+    get:
+      security: []
+      responses:
+        "200":
+          description: API is healthy
+  /api/v1/builds:
+    post:
+      summary: Register an explicitly ordered build using a controller credential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [tenant_id, environment_id, build_id, sequence_number]
+              properties:
+                tenant_id: { type: string, minLength: 1 }
+                environment_id: { type: string, minLength: 1 }
+                build_id: { type: string, minLength: 1 }
+                sequence_number: { type: integer, minimum: 1 }
+                predecessor_build_id: { type: string, minLength: 1 }
+      responses:
+        "201": { description: Build registered }
+        "200": { description: Exact registration retry acknowledged }
+        "401": { description: Missing or invalid credential }
+        "403": { description: Controller capability or tenant scope mismatch }
+        "409": { description: Build ID or sequence conflicts with the registry }
+        "422": { description: Predecessor chain is invalid }
+  /api/v1/experiments:
+    post:
+      summary: Explicitly create an isolated baseline or guided experiment run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExperimentRegistration" }
+      responses:
+        "201": { description: Experiment created }
+        "200": { description: Exact immutable creation retry }
+        "400": { description: malformed_json }
+        "403": { description: insufficient_capability or tenant_mismatch }
+        "409": { description: experiment_conflict }
+        "422": { description: contract_invalid or unknown_build }
+        "500": { description: experiment_creation_failed }
+  /api/v1/experiments/{id}/freeze:
+    post:
+      summary: Transactionally freeze a run and persist one immutable festival-v1.1 snapshot and input receipt
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "201":
+          description: First successful freeze
+          content: { application/json: { schema: { $ref: "#/components/schemas/ExperimentMetrics" } } }
+        "200":
+          description: Byte-stable replay of the stored frozen snapshot
+          content: { application/json: { schema: { $ref: "#/components/schemas/ExperimentMetrics" } } }
+        "400": { description: malformed_json }
+        "403": { description: insufficient_capability or tenant_mismatch }
+        "404": { description: experiment_not_found }
+        "409": { description: freeze_invariant_failed }
+        "500": { description: experiment_freeze_failed }
+  /api/v1/events:
+    post:
+      summary: Accept a normalized validation event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./validation-event.schema.json
+      responses:
+        "202": { description: Event accepted }
+        "200": { description: Duplicate event acknowledged without reinsertion }
+        "401": { description: Missing or invalid source credential }
+        "403": { description: Payload identity conflicts with authenticated source }
+        "422": { description: contract_invalid, unknown_build, unknown_run, or run_scope_mismatch }
+        "409": { description: event_id_conflict or run_frozen }
+        "400": { description: Malformed payload }
+  /api/v1/evidence:
+    get:
+      summary: Read reconciled evidence for one exact isolated run scope
+      parameters:
+        - { name: run_id, in: query, required: true, schema: { type: string } }
+        - { name: tenant_id, in: query, required: true, schema: { type: string } }
+        - { name: build_id, in: query, required: true, schema: { type: string } }
+        - { name: environment_id, in: query, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Evidence states and verification requests }
+        "422": { description: unknown_run or run_scope_mismatch }
+  /api/v1/recommendations/next:
+    get:
+      summary: Get the highest-value eligible claim recommendation from reconciled claim evidence
+      parameters:
+        - { name: run_id, in: query, required: true, schema: { type: string } }
+        - { name: tenant_id, in: query, required: true, schema: { type: string } }
+        - { name: build_id, in: query, required: true, schema: { type: string } }
+        - { name: environment_id, in: query, required: true, schema: { type: string } }
+        - { name: actor_id, in: query, required: true, schema: { type: string } }
+        - { name: role, in: query, required: true, schema: { type: string } }
+        - { name: scenario_id, in: query, required: false, schema: { type: string } }
+        - { name: feature_flag, in: query, required: false, description: "Repeat as key=value for each exact feature flag in scope.", schema: { type: array, items: { type: string, minLength: 3 } }, style: form, explode: true }
+        - { name: device, in: query, required: false, schema: { type: string } }
+        - { name: region, in: query, required: false, schema: { type: string } }
+      responses:
+        "200":
+          description: Persisted claim-level recommendation, or the idempotent replay for the same evidence and progression snapshots under the exact actor scope and policy
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Recommendation" }
+        "404": { description: No claims exist or every claim is infeasible; no recommendation row is persisted }
+        "409": { description: run_frozen or recommendation_progression_invalid }
+        "422": { description: unknown_run or run_scope_mismatch }
+  /api/v1/recommendations/{id}/responses:
+    post:
+      summary: Accept, dismiss, or override a recommendation with a required reason
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RecommendationResponse" }
+      responses:
+        "201": { description: Feedback recorded }
+        "200": { description: Exact feedback retry acknowledged }
+        "403": { description: recommendation_actor_mismatch or identity_mismatch }
+        "404": { description: recommendation_not_found }
+        "409": { description: run_frozen or response_conflict }
+        "422": { description: contract_invalid or override_claim_invalid }
+  /api/v1/states/{id}/merge:
+    post:
+      summary: Merge a candidate state into another while preserving correction history
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: State corrected }
+        "404": { description: state_not_found }
+        "409": { description: run_frozen }
+        "422": { description: run_scope_mismatch or correction contract invalid }
+  /api/v1/states/{id}/split:
+    post:
+      summary: Split selected event evidence into a new candidate state
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: State corrected }
+        "404": { description: state_not_found }
+        "409": { description: run_frozen }
+        "422": { description: run_scope_mismatch or correction contract invalid }
+  /api/v1/states/{id}/rename:
+    post:
+      summary: Rename a candidate fingerprint and business state
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200": { description: State corrected }
+        "404": { description: state_not_found }
+        "409": { description: run_frozen }
+        "422": { description: run_scope_mismatch or correction contract invalid }
+  /api/v1/experiments/{id}/metrics:
+    get:
+      summary: Read a deterministic active-run preview or the immutable frozen snapshot without writing
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: festival-v1.1 preview or frozen metrics
+          content: { application/json: { schema: { $ref: "#/components/schemas/ExperimentMetrics" } } }
+        "403": { description: tenant_mismatch }
+        "404": { description: experiment_not_found }
+        "500": { description: metrics_preview_failed }
+  /api/v1/claims/evidence:
+    get:
+      summary: Read reconciled claim evidence summaries for a target run and build context
+      parameters:
+        - { name: run_id, in: query, required: true, schema: { type: string } }
+        - { name: tenant_id, in: query, required: true, schema: { type: string } }
+        - { name: build_id, in: query, required: true, schema: { type: string } }
+        - { name: environment_id, in: query, required: true, schema: { type: string } }
+        - { name: scenario_id, in: query, required: false, schema: { type: string } }
+        - { name: feature_flag, in: query, required: false, description: "Repeat as key=value for each exact feature flag in scope.", schema: { type: array, items: { type: string, minLength: 3 } }, style: form, explode: true }
+        - { name: device, in: query, required: false, schema: { type: string } }
+        - { name: region, in: query, required: false, schema: { type: string } }
+        - { name: claim_id, in: query, required: false, schema: { type: string } }
+      responses:
+        "200":
+          description: Reconciled claim evidence summaries or single claim summary
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ClaimEvidenceSummariesResponse"
+                  - $ref: "#/components/schemas/ClaimEvidenceSummary"
+        "403": { description: tenant_mismatch }
+        "404": { description: claim_not_found }
+        "422": { description: unknown_run or contract_invalid }
+  /api/v1/claims/{id}/evidence:
+    get:
+      summary: Read reconciled evidence summary for a single claim
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+        - { name: run_id, in: query, required: true, schema: { type: string } }
+        - { name: tenant_id, in: query, required: true, schema: { type: string } }
+        - { name: build_id, in: query, required: true, schema: { type: string } }
+        - { name: environment_id, in: query, required: true, schema: { type: string } }
+        - { name: scenario_id, in: query, required: false, schema: { type: string } }
+        - { name: feature_flag, in: query, required: false, description: "Repeat as key=value for each exact feature flag in scope.", schema: { type: array, items: { type: string, minLength: 3 } }, style: form, explode: true }
+        - { name: device, in: query, required: false, schema: { type: string } }
+        - { name: region, in: query, required: false, schema: { type: string } }
+      responses:
+        "200":
+          description: Reconciled claim evidence summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ClaimEvidenceSummary" }
+        "403": { description: tenant_mismatch }
+        "404": { description: claim_not_found }
+        "422": { description: unknown_run or contract_invalid }
+  /api/v1/claims:
+    post:
+      summary: Save a claim definition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ClaimDefinition" }
+      responses:
+        "201":
+          description: Claim definition created
+          content: { application/json: { schema: { $ref: "#/components/schemas/ClaimDefinition" } } }
+        "200":
+          description: Exact idempotent retry acknowledged
+          content: { application/json: { schema: { $ref: "#/components/schemas/ClaimDefinition" } } }
+        "400": { description: malformed_json }
+        "401": { description: Missing or invalid source credential }
+        "403": { description: tenant_mismatch or insufficient_capability }
+        "409": { description: claim_conflict }
+        "422": { description: contract_invalid }
+  /api/v1/evidence-contexts:
+    post:
+      summary: Save an evidence context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EvidenceContext" }
+      responses:
+        "201":
+          description: Evidence context created
+          content: { application/json: { schema: { $ref: "#/components/schemas/EvidenceContext" } } }
+        "200":
+          description: Exact idempotent retry acknowledged
+          content: { application/json: { schema: { $ref: "#/components/schemas/EvidenceContext" } } }
+        "400": { description: malformed_json }
+        "401": { description: Missing or invalid source credential }
+        "403": { description: tenant_mismatch or insufficient_capability }
+        "409": { description: evidence_context_conflict or run_frozen }
+        "422": { description: contract_invalid, unknown_run, or run_scope_mismatch }
+  /api/v1/observations:
+    post:
+      summary: Ingest an observation linked to a claim and evidence context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Observation" }
+      responses:
+        "201":
+          description: Observation recorded
+          content: { application/json: { schema: { $ref: "#/components/schemas/Observation" } } }
+        "200":
+          description: Exact idempotent retry acknowledged
+          content: { application/json: { schema: { $ref: "#/components/schemas/Observation" } } }
+        "400": { description: malformed_json }
+        "401": { description: Missing or invalid source credential }
+        "403": { description: identity_mismatch, insufficient_capability, or tenant_mismatch }
+        "404": { description: claim_not_found }
+        "409": { description: observation_conflict or run_frozen }
+        "422": { description: contract_invalid, unknown_run, or run_scope_mismatch }

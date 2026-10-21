@@ -1,0 +1,79 @@
+{
+  "schema_version": "festival-claim-catalog-v1",
+  "tenant_id": "festival-thesis-demo",
+  "source": "Ashleyrfj2/Fest docs/thesis-demo/FESTIVAL_CLAIM_CATALOG.md",
+  "claims": [
+    {
+      "id": "FEST-CLAIM-01",
+      "title": "Permitted member creates the shared canopy item",
+      "description": "A permitted leader/editor can create the shared canopy item in the controlled trip.",
+      "target": "Supply List / canopy",
+      "state_signature": "item absent -> item exists/unassigned",
+      "actor_context": "leader or editor member",
+      "validation_intent": "TransitionSucceeds"
+    },
+    {
+      "id": "FEST-CLAIM-02",
+      "title": "Canopy assignment is shared across sessions",
+      "description": "A permitted member can claim an unassigned canopy and the assignment is shared with another signed-in session.",
+      "target": "Supply List / canopy assignment",
+      "state_signature": "unassigned -> claimed",
+      "actor_context": "permitted trip member",
+      "validation_intent": "DataPersistenceOnRefresh"
+    },
+    {
+      "id": "FEST-CLAIM-03",
+      "title": "Canopy owner can mark it packed",
+      "description": "The owner of a claimed canopy can mark it packed.",
+      "target": "Supply List / canopy packing",
+      "state_signature": "claimed -> packed",
+      "actor_context": "current item owner",
+      "validation_intent": "TransitionSucceeds"
+    },
+    {
+      "id": "FEST-CLAIM-04",
+      "title": "Packed canopy persists after refresh",
+      "description": "A packed canopy remains packed after refresh/requery when authoritative state is current.",
+      "target": "Supply List / canopy persistence",
+      "state_signature": "packed before reload -> packed after reload",
+      "actor_context": "permitted trip member",
+      "validation_intent": "DataPersistenceOnRefresh"
+    },
+    {
+      "id": "FEST-CLAIM-05",
+      "title": "Viewer cannot delete the controlled item",
+      "description": "A viewer cannot perform the controlled privileged delete mutation.",
+      "target": "Supply List authorization",
+      "state_signature": "canopy exists -> delete attempt denied, item remains",
+      "actor_context": "viewer member",
+      "validation_intent": "RolePermissionEnforcement"
+    },
+    {
+      "id": "FEST-CLAIM-06",
+      "title": "Denied viewer mutation creates private audit evidence",
+      "description": "A denied privileged viewer mutation produces the expected immutable authorization evidence without exposing sensitive before/after payloads.",
+      "target": "Supply List private denial audit",
+      "state_signature": "denied mutation -> audit evidence exists",
+      "actor_context": "viewer member",
+      "validation_intent": "AuditEventCreated"
+    },
+    {
+      "id": "FEST-CLAIM-07",
+      "title": "Client converges after stale condition ends",
+      "description": "After the controlled stale/offline refresh condition ends, the client converges to the authoritative packed state.",
+      "target": "Supply List realtime/reconciliation",
+      "state_signature": "stale client view -> authoritative packed view",
+      "actor_context": "editor/late tester in controlled build",
+      "validation_intent": "DataPersistenceOnRefresh"
+    },
+    {
+      "id": "FEST-CLAIM-08",
+      "title": "Non-owner cannot pack another member's canopy",
+      "description": "A trip member who does not own a claimed canopy cannot pack it, and the authoritative item state remains unchanged after the denied attempt.",
+      "target": "Supply List ownership authorization",
+      "state_signature": "claimed by another member -> pack attempt denied, item remains claimed",
+      "actor_context": "authenticated non-owner trip member",
+      "validation_intent": "RolePermissionEnforcement"
+    }
+  ]
+}
