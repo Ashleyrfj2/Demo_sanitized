@@ -1,0 +1,19 @@
+{
+  "event_id": "20000000-0000-5000-8000-000000000004",
+  "tenant_id": "festival-thesis-demo",
+  "run_id": "festival-guided-001",
+  "actor_id": "late-tester-d",
+  "source_type": "human",
+  "source_adapter": "chrome-mv3",
+  "build_id": "festnest-demo-001",
+  "environment_id": "festnest-local-browser",
+  "context": { "role": "editor", "browser": "chrome", "module": "supply-list", "connectivity": "online", "scenario_id": "equipment-handoff-v1" },
+  "route": "/trips/10000000-0000-4000-8000-000000000001/supply-list",
+  "state_fingerprint": "supply-list:item:10000000-0000-4000-8000-000000000101:status:packed",
+  "action_type": "supply_item_reconciled",
+  "outcome": "pass",
+  "verifier_result": "editor_observed_packed_after_reconnect",
+  "occurred_at": "2026-08-22T15:04:00Z",
+  "step_index": 1,
+  "privacy": { "masked": true }
+}

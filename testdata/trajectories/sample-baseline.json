@@ -1,0 +1,18 @@
+{
+  "event_id": "20000000-0000-5000-8000-000000000010",
+  "tenant_id": "festival-thesis-demo",
+  "run_id": "festival-baseline-001",
+  "actor_id": "baseline-human-a",
+  "source_type": "human",
+  "source_adapter": "chrome-mv3",
+  "build_id": "festnest-demo-001",
+  "environment_id": "festnest-local-browser",
+  "context": { "role": "editor", "browser": "chrome", "module": "supply-list", "connectivity": "online", "scenario_id": "equipment-handoff-v1" },
+  "route": "/trips/10000000-0000-4000-8000-000000000001/supply-list",
+  "state_fingerprint": "supply-list:item:10000000-0000-4000-8000-000000000102:status:unassigned",
+  "action_type": "supply_item_observed",
+  "outcome": "pass",
+  "occurred_at": "2026-08-22T14:00:00Z",
+  "step_index": 1,
+  "privacy": { "masked": true }
+}
